@@ -201,7 +201,19 @@ if soi_file is not None and payroll_files:
 
         st.header("3. Individual Discrepancy Summary")
 
-        st.dataframe(summary_df)
+        st.dataframe(
+        summary_df[
+            [
+                "Serial Number",
+                "Months_Incorrect",
+                "Months_Overpaid",
+                "Months_Underpaid",
+                "Total_Overpaid",
+                "Total_Underpaid"
+                "Total_Variance",
+                ]
+            ]
+        )
 
         st.markdown("---")
 
