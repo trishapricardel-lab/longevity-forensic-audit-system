@@ -706,16 +706,16 @@ if soi_file is not None and payroll_files:
         merged_df["Error_Flag"] = merged_df["LP_Difference"].abs() > 1
 
 
-# ============================
-# PERSONNEL SUMMARY
-# ============================
+        # ============================
+        # PERSONNEL SUMMARY
+        # ============================
 
-summary_df = merged_df.groupby("Serial Number").agg(
-    Months_Incorrect=("Error_Flag", "sum"),
-    Total_Variance=("LP_Difference", "sum"),
-    Total_Overpaid=("LP_Difference", lambda x: x[x > 0].sum()),
-    Total_Underpaid=("LP_Difference", lambda x: abs(x[x < 0].sum()))
-).reset_index()
+        summary_df = merged_df.groupby("Serial Number").agg(
+            Months_Incorrect=("Error_Flag", "sum"),
+            Total_Variance=("LP_Difference", "sum"),
+            Total_Overpaid=("LP_Difference", lambda x: x[x > 0].sum()),
+            Total_Underpaid=("LP_Difference", lambda x: abs(x[x < 0].sum()))
+        ).reset_index()
 
 
 # ============================
