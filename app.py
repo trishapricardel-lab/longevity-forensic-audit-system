@@ -359,11 +359,12 @@ st.caption("Personnel–Finance Validation Engine| Philippine Army Financial Aud
 
 st.markdown("---")
 
+# ============================
 # COMMAND DASHBOARD
+# ============================
 
+st.markdown("---")
 st.header("📊 Command Dashboard")
-
-col1, col2, col3, col4 = st.columns(4)
 
 if "summary_df" in locals():
 
@@ -379,6 +380,7 @@ else:
     total_underpayment = 0
     risk_alerts = 0
 
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.metric("Personnel Audited", total_personnel)
@@ -391,6 +393,7 @@ with col3:
 
 with col4:
     st.metric("Risk Alerts", risk_alerts)
+    
 
 # ============================
 # RANK DISCREPANCY SUMMARY
