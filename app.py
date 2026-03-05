@@ -27,7 +27,8 @@ from modules.dashboards import (
     rank_summary,
     organizational_summary,
     investigation_panel,
-    irregularity_summary
+    irregularity_summary,
+    financial_impact_panel
 )
 
 # ============================
