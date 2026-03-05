@@ -236,7 +236,7 @@ if st.session_state.role in ["Admin","Finance"]:
                 f.write(file.getbuffer())
 
         st.success("Payroll files saved")
-        for file in payroll_files:
+            for file in payroll_files:
 
     path = f"data/payroll/{file.name}"
 
