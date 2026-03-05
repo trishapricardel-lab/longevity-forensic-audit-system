@@ -23,12 +23,11 @@ from modules.processing import (
 )
 
 from modules.dashboards import (
+    irregularity_summary,
+    financial_impact_panel,
     command_dashboard,
     rank_summary,
-    organizational_summary,
-    investigation_panel,
-    irregularity_summary,
-    financial_impact_panel
+    investigation_panel
 )
 
 from modules.irregularity_engine import detect_mismatch
