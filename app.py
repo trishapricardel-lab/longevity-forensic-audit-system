@@ -473,22 +473,45 @@ else:
         orders_file = path
 
 # ============================
-# Payroll Upload
+# PAYROLL SOURCE
 # ============================
+
+st.subheader("Payroll Source")
+
+payroll_option = st.radio(
+    "Payroll Data Source",
+    ["Use Existing Payroll Files", "Upload New Payroll Files"]
+)
 
 payroll_files = []
 
-if st.session_state.role in ["Admin", "Finance"]:
+if payroll_option == "Use Existing Payroll Files":
 
-    payroll_files = st.file_uploader(
-        "Upload Monthly Payroll Files",
+    payroll_repo = os.listdir("data/payroll")
+
+    if len(payroll_repo) > 0:
+
+        selected_payroll = st.multiselect(
+            "Select Payroll Files",
+            payroll_repo
+        )
+
+        payroll_files = [f"data/payroll/{f}" for f in selected_payroll]
+
+    else:
+        st.info("No payroll files available.")
+
+else:
+
+    uploaded_payroll = st.file_uploader(
+        "Upload Payroll CSV Files",
         type=["csv"],
         accept_multiple_files=True
     )
 
-    if payroll_files:
+    if uploaded_payroll:
 
-        for file in payroll_files:
+        for file in uploaded_payroll:
 
             path = f"data/payroll/{file.name}"
 
@@ -497,7 +520,9 @@ if st.session_state.role in ["Admin", "Finance"]:
 
             log_action(st.session_state.username, "Upload Payroll", file.name)
 
-        st.success("Payroll files saved")
+            payroll_files.append(path)
+
+        st.success("Payroll files saved to repository")
 
 # ============================
 # LOAD ORDERS FROM REPOSITORY
