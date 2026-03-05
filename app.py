@@ -49,6 +49,23 @@ st.set_page_config(
     page_title="Integrated Longevity Audit System",
     layout="wide"
 )
+st.markdown("""
+<style>
+.metric-card button {
+    width: 100%;
+    height: 90px;
+    border-radius: 10px;
+    border: 1px solid #2c3e50;
+    background-color: #0f1c2e;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+}
+.metric-card button:hover {
+    border-color: #C9A227;
+}
+</style>
+""", unsafe_allow_html=True)
 
 st.markdown("""
 <style>
