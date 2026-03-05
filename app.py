@@ -7,6 +7,43 @@ import os
 
 st.set_page_config(page_title="Longevity Pay Audit System", layout="wide")
 
+st.markdown("""
+<style>
+
+/* METRIC CARDS */
+[data-testid="stMetric"] {
+    background-color: #1C1F26;
+    border: 1px solid #2E3138;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+/* METRIC VALUE */
+[data-testid="stMetricValue"] {
+    color: #C9A227;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+/* SECTION HEADERS */
+h2 {
+    border-bottom: 2px solid #C9A227;
+    padding-bottom: 5px;
+}
+
+/* ALERT BOX */
+.stAlert {
+    border-left: 6px solid red;
+}
+
+/* DATAFRAME */
+[data-testid="stDataFrame"] {
+    border: 1px solid #2E3138;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 # ============================
 # CREATE STORAGE DIRECTORIES
 # ============================
