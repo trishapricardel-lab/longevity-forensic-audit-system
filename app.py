@@ -674,6 +674,7 @@ if len(soi_files) > 0:
         selected_rank = st.selectbox(
             "Filter by Rank",
             rank_options
+            key="soi_rank_filter"
         )
 
         if selected_rank != "All":
