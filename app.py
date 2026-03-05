@@ -5,7 +5,7 @@ import sqlite3
 from datetime import datetime
 import os
 
-st.set_page_config(page_title="Longevity Forensic Audit System", layout="wide")
+st.set_page_config(page_title="Longevity Pay Audit System", layout="wide")
 
 # ============================
 # CREATE STORAGE DIRECTORIES
@@ -160,7 +160,7 @@ for file in payroll_list:
 # MAIN PAGE
 # ============================
 
-st.title("Longevity Pay Forensic Audit System")
+st.title("Longevity Pay Audit System")
 st.markdown("### Multi-Month Personnel–Finance Validation Engine")
 
 st.markdown("---")
@@ -169,7 +169,7 @@ st.markdown("---")
 # FILE UPLOAD
 # ============================
 
-st.header("1. Upload Required Files")
+st.header("📤 Upload Required Files")
 
 # SOI Upload
 
@@ -387,10 +387,10 @@ if soi_file is not None and payroll_files:
 
         st.markdown("---")
 
-        st.header("3. Individual Discrepancy Summary")
+        st.header("🔍 Individual Discrepancy Summary")
 
         st.markdown("---")
-        st.header("5. Personnel Investigation Panel")
+        st.header("🧑‍⚖️ Personnel Investigation Panel")
 
         selected_serial = st.selectbox(
             "Select Personnel Serial Number",
