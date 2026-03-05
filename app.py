@@ -399,19 +399,19 @@ with col4:
 
 st.subheader("📊 Longevity Pay Discrepancy by Rank")
 
-if "Rank" in merged_df.columns:
+    if "Rank" in merged_df.columns:
 
-    rank_summary = merged_df.groupby("Rank").agg(
-        Personnel=("Serial Number", "nunique"),
-        With_Error=("Error_Flag", "sum"),
-        Overpaid=("LP_Difference", lambda x: x[x > 0].sum()),
-        Underpaid=("LP_Difference", lambda x: abs(x[x < 0].sum()))
-    ).reset_index()
+        rank_summary = merged_df.groupby("Rank").agg(
+            Personnel=("Serial Number", "nunique"),
+            With_Error=("Error_Flag", "sum"),
+            Overpaid=("LP_Difference", lambda x: x[x > 0].sum()),
+            Underpaid=("LP_Difference", lambda x: abs(x[x < 0].sum()))
+        ).reset_index()
 
-    st.dataframe(rank_summary)
+        st.dataframe(rank_summary)
 
-else:
-    st.info("Upload files to generate rank discrepancy summary.")
+    else:
+        st.info("Upload files to generate rank discrepancy summary.")
 
 st.markdown("---")
 
