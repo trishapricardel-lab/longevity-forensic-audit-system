@@ -717,111 +717,108 @@ if soi_file is not None and payroll_files:
             Total_Underpaid=("LP_Difference", lambda x: abs(x[x < 0].sum()))
         ).reset_index()
 
+        # ============================
+        # ORGANIZATIONAL SUMMARY
+        # ============================
 
-# ============================
-# ORGANIZATIONAL SUMMARY
-# ============================
+        total_overpayment = summary_df["Total_Overpaid"].sum()
+        total_underpayment = summary_df["Total_Underpaid"].sum()
 
-total_overpayment = summary_df["Total_Overpaid"].sum()
-total_underpayment = summary_df["Total_Underpaid"].sum()
+        st.header("📊 Organizational Financial Summary")
 
-st.header("📊 Organizational Financial Summary")
+        col1, col2 = st.columns(2)
 
-col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Total Overpayment", f"₱{total_overpayment:,.2f}")
 
-with col1:
-    st.metric("Total Overpayment", f"₱{total_overpayment:,.2f}")
-
-with col2:
-    st.metric("Total Underpayment", f"₱{total_underpayment:,.2f}")
+        with col2:
+            st.metric("Total Underpayment", f"₱{total_underpayment:,.2f}")
 
 
-# ============================
-# PERSONNEL INVESTIGATION PANEL
-# ============================
+        # ============================
+        # PERSONNEL INVESTIGATION PANEL
+        # ============================
 
-st.markdown("---")
-st.header("🧑‍⚖️ Personnel Investigation Panel")
+        st.markdown("---")
+        st.header("🧑‍⚖️ Personnel Investigation Panel")
 
-if len(summary_df) > 0:
+        if len(summary_df) > 0:
 
-    selected_serial = st.selectbox(
-        "Select Personnel Serial Number",
-        summary_df["Serial Number"]
-    )
+            selected_serial = st.selectbox(
+                "Select Personnel Serial Number",
+                summary_df["Serial Number"]
+            )
 
-    person_summary = summary_df[
-        summary_df["Serial Number"] == selected_serial
-    ]
-
-    person_history = merged_df[
-        merged_df["Serial Number"] == selected_serial
-    ]
-
-    st.subheader("Personnel Financial Summary")
-    st.dataframe(person_summary)
-
-    st.subheader("Monthly Payroll History")
-
-    st.dataframe(
-        person_history[
-            [
-                "Payroll Month",
-                "Basic Salary",
-                "Longevity Pay",
-                "Correct_Long_Pay",
-                "LP_Difference"
+            person_summary = summary_df[
+                summary_df["Serial Number"] == selected_serial
             ]
-        ]
-    )
 
-else:
-    st.info("No personnel records available.")
+            person_history = merged_df[
+                merged_df["Serial Number"] == selected_serial
+            ]
 
+            st.subheader("Personnel Financial Summary")
+            st.dataframe(person_summary)
 
-# ============================
-# INDIVIDUAL DISCREPANCY SUMMARY
-# ============================
+            st.subheader("Monthly Payroll History")
 
-st.markdown("---")
-st.header("🔍 Individual Discrepancy Summary")
-st.dataframe(summary_df)
+            st.dataframe(
+                person_history[
+                    [
+                        "Payroll Month",
+                        "Basic Salary",
+                        "Longevity Pay",
+                        "Correct_Long_Pay",
+                        "LP_Difference"
+                    ]
+                ]
+            )
 
-
-# ============================
-# DETAILED MONTHLY AUDIT
-# ============================
-
-st.markdown("---")
-st.header("📑 Detailed Monthly Audit")
-
-st.dataframe(merged_df)
-
-st.download_button(
-    label="Download Audit Report",
-    data=merged_df.to_csv(index=False).encode("utf-8"),
-    file_name="longevity_audit_report.csv",
-    mime="text/csv",
-)
+        else:
+            st.info("No personnel records available.")
 
 
-except Exception as e:
-    st.error(f"Processing Error: {e}")
+        # ============================
+        # INDIVIDUAL DISCREPANCY SUMMARY
+        # ============================
 
-else:
-    st.info("Upload SOI and Payroll files to start audit.")
+        st.markdown("---")
+        st.header("🔍 Individual Discrepancy Summary")
+        st.dataframe(summary_df)
 
 
-# ============================
-# SYSTEM AUDIT LOG
-# ============================
+        # ============================
+        # DETAILED MONTHLY AUDIT
+        # ============================
 
-st.markdown("---")
-st.header("📜 System Audit Log")
+        st.markdown("---")
+        st.header("📑 Detailed Monthly Audit")
 
-audit_df = pd.read_sql_query(
-    "SELECT * FROM audit_log ORDER BY id DESC",
-    conn
-)
+        st.dataframe(merged_df)
 
-st.dataframe(audit_df)
+        st.download_button(
+            label="Download Audit Report",
+            data=merged_df.to_csv(index=False).encode("utf-8"),
+            file_name="longevity_audit_report.csv",
+            mime="text/csv",
+        )
+
+        except Exception as e:
+            st.error(f"Processing Error: {e}")
+
+        else:
+            st.info("Upload SOI and Payroll files to start audit.")
+
+        # ============================
+        # SYSTEM AUDIT LOG
+        # ============================
+
+        st.markdown("---")
+        st.header("📜 System Audit Log")
+
+        audit_df = pd.read_sql_query(
+            "SELECT * FROM audit_log ORDER BY id DESC",
+            conn
+        )
+
+        st.dataframe(audit_df)
