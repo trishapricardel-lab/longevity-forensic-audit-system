@@ -60,8 +60,10 @@ os.makedirs("data/payroll", exist_ok=True)
 # DATABASE CONNECTION
 # ============================
 
-conn = sqlite3.connect("longevity_system.db", check_same_thread=False)
-cursor = conn.cursor()
+from modules.database import connect_db, create_tables
+
+conn, cursor = connect_db()
+create_tables(cursor, conn)
 
 def log_action(user, action, filename):
 
