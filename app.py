@@ -803,20 +803,19 @@ if soi_file is not None and payroll_files:
             mime="text/csv",
         )
 
-        except Exception as e:
-            st.error(f"Processing Error: {e}")
+    except Exception as e:
+        st.error(f"Processing Error: {e}")
 
+# ============================
+# SYSTEM AUDIT LOG
+# ============================
 
-        # ============================
-        # SYSTEM AUDIT LOG
-        # ============================
+st.markdown("---")
+st.header("📜 System Audit Log")
 
-        st.markdown("---")
-        st.header("📜 System Audit Log")
+audit_df = pd.read_sql_query(
+    "SELECT * FROM audit_log ORDER BY id DESC",
+    conn
+)
 
-        audit_df = pd.read_sql_query(
-            "SELECT * FROM audit_log ORDER BY id DESC",
-            conn
-        )
-
-        st.dataframe(audit_df)
+st.dataframe(audit_df)
