@@ -31,6 +31,15 @@ payroll_files = st.file_uploader(
     type=["csv"],
     accept_multiple_files=True
 )
+if orders_file is not None:
+
+    orders_df = pd.read_csv(orders_file)
+
+    orders_df["Effective Date"] = pd.to_datetime(
+        orders_df["Effective Date"]
+    )
+
+    orders_df["Upload_Time"] = datetime.now()
 
 st.markdown("---")
 
