@@ -1,10 +1,33 @@
 import streamlit as st
 import pandas as pd
 import math
+import os
 from datetime import datetime
 
 st.set_page_config(page_title="Longevity Forensic Audit System", layout="wide")
+# ============================
+# SIDEBAR DATA REPOSITORY
+# ============================
 
+st.sidebar.title("Data Repository")
+
+st.sidebar.subheader("SOI Files")
+
+soi_list = os.listdir("data/soi")
+for file in soi_list:
+    st.sidebar.write(file)
+
+st.sidebar.subheader("Longevity Orders")
+
+order_list = os.listdir("data/orders")
+for file in order_list:
+    st.sidebar.write(file)
+
+st.sidebar.subheader("Payroll Files")
+
+payroll_list = os.listdir("data/payroll")
+for file in payroll_list:
+    st.sidebar.write(file)
 st.title("Longevity Pay Forensic Audit System")
 st.markdown("### Multi-Month Personnel–Finance Validation Engine")
 
