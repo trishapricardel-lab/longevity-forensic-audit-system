@@ -386,30 +386,47 @@ st.markdown("---")
 st.header("📤 Upload Required Files")
 
 # ============================
-# SOI Upload
+# SOI SOURCE
 # ============================
+
+st.subheader("SOI Source")
+
+soi_option = st.radio(
+    "SOI Data Source",
+    ["Use Existing SOI File", "Upload New SOI File"]
+)
 
 soi_file = None
 
-if st.session_state.role in ["Admin", "S1", "Adjutant"]:
+if soi_option == "Use Existing SOI File":
 
-    soi_file = st.file_uploader(
-        "Upload SOI File (S1) - CSV",
-        type=["csv"]
-    )
+    soi_files = os.listdir("data/soi")
 
-    if soi_file is not None:
+    if len(soi_files) > 0:
 
-        path = f"data/soi/{soi_file.name}"
+        selected_soi = st.selectbox("Select SOI File", soi_files)
 
-        with open(path, "wb") as f:
-            f.write(soi_file.getbuffer())
+        soi_file = f"data/soi/{selected_soi}"
 
-        st.success("SOI saved to repository")
-        log_action(st.session_state.username, "Upload SOI", soi_file.name)
+    else:
+        st.info("No SOI files available in repository.")
 
 else:
-    st.info("Only S1, Adjutant, or Admin can upload SOI files.")
+
+    uploaded_soi = st.file_uploader("Upload SOI CSV", type=["csv"])
+
+    if uploaded_soi is not None:
+
+        path = f"data/soi/{uploaded_soi.name}"
+
+        with open(path, "wb") as f:
+            f.write(uploaded_soi.getbuffer())
+
+        st.success("SOI saved to repository")
+
+        log_action(st.session_state.username, "Upload SOI", uploaded_soi.name)
+
+        soi_file = path
 
 
 # ============================
