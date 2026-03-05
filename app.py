@@ -515,6 +515,51 @@ if orders_df is not None:
 
 else:
     st.info("No longevity orders uploaded yet.")
+
+# ============================
+# SOI ARCHIVE
+# ============================
+
+st.markdown("---")
+st.header("📂 SOI Archive")
+
+soi_files = os.listdir("data/soi")
+
+if len(soi_files) > 0:
+
+    archive_list = []
+
+    for file in soi_files:
+
+        path = f"data/soi/{file}"
+
+        df = pd.read_csv(path)
+
+        df.columns = df.columns.str.strip()
+
+        df["Source_File"] = file
+
+        archive_list.append(df)
+
+    soi_archive_df = pd.concat(archive_list, ignore_index=True)
+
+    display_columns = [
+        "Rank",
+        "Name",
+        "Serial Number",
+        "Date of Entry",
+        "Source_File"
+    ]
+
+    # Only show columns that exist in the file
+    display_columns = [c for c in display_columns if c in soi_archive_df.columns]
+
+    st.dataframe(soi_archive_df[display_columns])
+
+else:
+
+    st.info("No SOI files uploaded yet.")
+    
 # ============================
 # PROCESSING
 # ============================
