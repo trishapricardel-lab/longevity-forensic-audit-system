@@ -134,7 +134,7 @@ if "logged_in" not in st.session_state:
 
 if not st.session_state.logged_in:
 
-    st.title("Longevity Pay Forensic Audit System")
+    st.title("🛡️ Integrated Longevity Audit System")
 
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
@@ -358,7 +358,7 @@ for file in payroll_list:
 # ============================
 
 st.title("🛡️ Integrated Longevity Audit System")
-st.caption("Personnel–Finance Validation Engine")
+st.caption("Personnel–Finance Validation Engine| Philippine Army Financial Audit Tool")
 
 st.markdown("---")
 
