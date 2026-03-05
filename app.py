@@ -527,31 +527,29 @@ soi_files = os.listdir("data/soi")
 
 if len(soi_files) > 0:
 
-    archive_list = []
+    selected_soi = st.selectbox(
+        "Filter by SOI File",
+        soi_files
+    )
 
-    for file in soi_files:
+    path = f"data/soi/{selected_soi}"
 
-        path = f"data/soi/{file}"
+    soi_archive_df = pd.read_csv(path)
 
-        df = pd.read_csv(path)
+    soi_archive_df.columns = soi_archive_df.columns.str.strip()
 
-        df.columns = df.columns.str.strip()
-
-        df["Source_File"] = file
-
-        archive_list.append(df)
-
-    soi_archive_df = pd.concat(archive_list, ignore_index=True)
+    soi_archive_df["Source_File"] = selected_soi
+    soi_archive_df["Upload_Date"] = datetime.fromtimestamp(os.path.getmtime(path))
 
     display_columns = [
         "Rank",
         "Name",
         "Serial Number",
         "Date of Entry",
-        "Source_File"
+        "Source_File",
+        "Upload_Date"
     ]
 
-    # Only show columns that exist in the file
     display_columns = [c for c in display_columns if c in soi_archive_df.columns]
 
     st.dataframe(soi_archive_df[display_columns])
