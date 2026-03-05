@@ -209,8 +209,8 @@ if soi_file is not None and payroll_files:
                 "Months_Overpaid",
                 "Months_Underpaid",
                 "Total_Overpaid",
-                "Total_Underpaid"
-                "Total_Variance",
+                "Total_Underpaid",
+                "Total_Variance"
                 ]
             ]
         )
