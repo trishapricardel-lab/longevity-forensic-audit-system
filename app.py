@@ -21,6 +21,11 @@ soi_file = st.file_uploader(
     type=["csv"]
 )
 
+orders_file = st.file_uploader(
+    "Upload Longevity Orders (Adjutant) - CSV",
+    type=["csv"]
+)
+
 payroll_files = st.file_uploader(
     "Upload Monthly Payroll Files (Finance) - CSV",
     type=["csv"],
