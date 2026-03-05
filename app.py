@@ -2,7 +2,50 @@ import streamlit as st
 import pandas as pd
 import math
 import os
-from datetime import datetime
+import sqlite3
+from datetime import 
+
+# ============================
+# DATABASE CONNECTION
+# ============================
+
+conn = sqlite3.connect("longevity_system.db", check_same_thread=False)
+cursor = conn.cursor()
+
+# ============================
+# CREATE TABLES
+# ============================
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS soi (
+serial_number TEXT PRIMARY KEY,
+rank TEXT,
+name TEXT,
+date_of_entry TEXT
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS orders (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+order_number TEXT,
+serial_number TEXT,
+lp_level INTEGER,
+effective_date TEXT
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS payroll (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+serial_number TEXT,
+payroll_month TEXT,
+basic_salary REAL,
+longevity_pay REAL
+)
+""")
+
+conn.commit()
 
 # ============================
 # LOGIN SYSTEM
