@@ -5,6 +5,9 @@ import sqlite3
 from datetime import datetime
 import os
 
+from modules.auth import login
+login()
+
 st.set_page_config(page_title="Integrated Longevity Audit System", layout="wide")
 
 st.markdown("""
