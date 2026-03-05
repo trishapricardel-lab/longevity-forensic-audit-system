@@ -87,6 +87,8 @@ def irregularity_summary(merged_df, soi_df, orders_df):
 
 def executive_dashboard(summary_df, merged_df):
 
+    import streamlit as st
+
     st.markdown("---")
     st.header("📊 Executive Financial Dashboard")
 
@@ -94,11 +96,14 @@ def executive_dashboard(summary_df, merged_df):
         st.info("Upload files to generate dashboard.")
         return
 
-    # Coverage
-    personnel = summary_df["Serial Number"].nunique()
+    # -----------------------------
+    # Compute Metrics
+    # -----------------------------
+
+    personnel_audited = summary_df["Serial Number"].nunique()
+
     payroll_records = merged_df.shape[0]
 
-    # Error counts
     personnel_errors = (summary_df["Months_Incorrect"] > 0).sum()
 
     overpayment_df = summary_df[summary_df["Total_Overpaid"] > 0]
@@ -110,41 +115,50 @@ def executive_dashboard(summary_df, merged_df):
     total_overpayment = summary_df["Total_Overpaid"].sum()
     total_underpayment = summary_df["Total_Underpaid"].sum()
 
-    col1, col2 = st.columns(2)
+    # -----------------------------
+    # Row 1 (3 columns)
+    # -----------------------------
+
+    col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("Personnel Audited", personnel)
-        if st.button("View Personnel Audited"):
+        if st.button(f"Personnel Audited\n\n{personnel_audited}"):
             st.session_state.view = "personnel"
 
     with col2:
-        st.metric("Payroll Records", payroll_records)
-        if st.button("View Payroll Records"):
+        if st.button(f"Payroll Records\n\n{payroll_records}"):
             st.session_state.view = "payroll"
 
-    col3, col4 = st.columns(2)
-
     with col3:
-        st.metric("Personnel with Errors", personnel_errors)
-        if st.button("View Errors"):
+        if st.button(f"Personnel with Errors\n\n{personnel_errors}"):
             st.session_state.view = "errors"
 
-    with col4:
-        st.metric("Personnel with Overpayment", personnel_overpaid)
-        if st.button("View Overpayment Cases"):
-            st.session_state.view = "overpayment"
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    col5, col6 = st.columns(2)
+    # -----------------------------
+    # Row 2
+    # -----------------------------
+
+    col4, col5 = st.columns(2)
+
+    with col4:
+        if st.button(f"Personnel with Overpayment\n\n{personnel_overpaid}"):
+            st.session_state.view = "overpayment"
 
     with col5:
         st.metric("Total Overpayment", f"₱{total_overpayment:,.2f}")
 
-    with col6:
-        st.metric("Personnel with Underpayment", personnel_underpaid)
-        if st.button("View Underpayment Cases"):
-            st.session_state.view = "underpayment"
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    col7, col8 = st.columns(2)
+    # -----------------------------
+    # Row 3
+    # -----------------------------
+
+    col6, col7 = st.columns(2)
+
+    with col6:
+        if st.button(f"Personnel with Underpayment\n\n{personnel_underpaid}"):
+            st.session_state.view = "underpayment"
 
     with col7:
         st.metric("Total Underpayment", f"₱{total_underpayment:,.2f}")
