@@ -138,7 +138,7 @@ if soi_file is not None and payroll_files:
 
         merged_df["LP_Difference"] = (
             merged_df["Longevity Pay"] - merged_df["Correct_Long_Pay"]
-        )
+        ).round(2)
 
         merged_df["Error_Flag"] = merged_df["LP_Difference"].abs() > 1
 
@@ -149,8 +149,8 @@ if soi_file is not None and payroll_files:
         summary_df = merged_df.groupby("Serial Number").agg(
             Months_Incorrect=("Error_Flag", "sum"),
             Total_Variance=("LP_Difference", "sum"),
-            Total_Overpaid=("LP_Difference", lambda x: x[x > 1].sum()),
-            Total_Underpaid=("LP_Difference", lambda x: abs(x[x < -1].sum()))
+            Total_Overpaid=("LP_Difference", lambda x: x[x > 0].sum()),
+            Total_Underpaid=("LP_Difference", lambda x: abs(x[x < 0].sum()))
         ).reset_index()
         def risk_level(months):
             
@@ -167,7 +167,7 @@ if soi_file is not None and payroll_files:
                 return "🔴 High Risk"
 
 
-summary_df["Risk_Level"] = summary_df["Months_Incorrect"].apply(risk_level)
+        summary_df["Risk_Level"] = summary_df["Months_Incorrect"].apply(risk_level)
         # ------------------------
         # DASHBOARD
         # ------------------------
