@@ -430,28 +430,47 @@ else:
 
 
 # ============================
-# Orders Upload
+# ORDERS SOURCE
 # ============================
+
+st.subheader("Longevity Orders Source")
+
+orders_option = st.radio(
+    "Orders Data Source",
+    ["Use Existing Orders", "Upload New Orders"]
+)
 
 orders_file = None
 
-if st.session_state.role in ["Admin", "Adjutant"]:
+if orders_option == "Use Existing Orders":
 
-    orders_file = st.file_uploader(
-        "Upload Longevity Orders",
-        type=["csv"]
-    )
+    orders_files = os.listdir("data/orders")
 
-    if orders_file is not None:
+    if len(orders_files) > 0:
 
-        path = f"data/orders/{orders_file.name}"
+        selected_orders = st.selectbox("Select Orders File", orders_files)
+
+        orders_file = f"data/orders/{selected_orders}"
+
+    else:
+        st.info("No order files available.")
+
+else:
+
+    uploaded_orders = st.file_uploader("Upload Orders CSV", type=["csv"])
+
+    if uploaded_orders is not None:
+
+        path = f"data/orders/{uploaded_orders.name}"
 
         with open(path, "wb") as f:
-            f.write(orders_file.getbuffer())
+            f.write(uploaded_orders.getbuffer())
 
         st.success("Orders saved")
-        log_action(st.session_state.username, "Upload Longevity Order", orders_file.name)
 
+        log_action(st.session_state.username, "Upload Orders", uploaded_orders.name)
+
+        orders_file = path
 
 # ============================
 # Payroll Upload
