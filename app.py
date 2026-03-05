@@ -530,34 +530,34 @@ if soi_file is not None and payroll_files:
         st.success("No unauthorized longevity payments detected.")
         
         # ============================
-# ELIGIBLE BUT NO ORDER
-# ============================
+        # ELIGIBLE BUT NO ORDER
+        # ============================
 
-eligible_df = soi_df[soi_df["Eligible_LP_Level"] > 0]
+        eligible_df = soi_df[soi_df["Eligible_LP_Level"] > 0]
 
-if orders_df is not None:
+        if orders_df is not None:
 
-    missing_orders = eligible_df[
-        ~eligible_df["Serial Number"].isin(orders_df["Serial Number"])
-    ]
-
-    if len(missing_orders) > 0:
-
-        st.subheader("⚠ Personnel Eligible but No Longevity Order Issued")
-
-        st.metric(
-            "Personnel Eligible Without Order",
-            len(missing_orders)
-        )
-
-        st.dataframe(
-            missing_orders[
-                [
-                    "Serial Number",
-                    "Years_of_Service",
-                    "Eligible_LP_Level"
-                ]
+            missing_orders = eligible_df[
+                ~eligible_df["Serial Number"].isin(orders_df["Serial Number"])
             ]
+
+            if len(missing_orders) > 0:
+
+                st.subheader("⚠ Personnel Eligible but No Longevity Order Issued")
+
+                st.metric(
+                    "Personnel Eligible Without Order",
+                    len(missing_orders)
+               )
+
+                st.dataframe(
+                    missing_orders[
+                        [
+                            "Serial Number",
+                            "Years_of_Service",
+                            "Eligible_LP_Level"
+                        ]
+                    ]
         )
 
     else:
