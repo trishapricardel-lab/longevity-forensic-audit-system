@@ -127,3 +127,102 @@ def investigation_panel(summary_df, merged_df):
             ]
         ]
     )
+
+# ============================
+# IRREGULARITY SUMMARY PANEL
+# ============================
+
+def irregularity_summary(merged_df, soi_df, orders_df):
+
+    st.markdown("---")
+    st.header("🚨 Detected Financial Irregularities")
+
+    if merged_df is None:
+        st.info("Upload files to generate irregularity analysis.")
+        return
+
+    # ============================
+    # 1 INCORRECT LP COMPUTATION
+    # ============================
+
+    incorrect_lp = merged_df[merged_df["Error_Flag"] == True]
+
+    incorrect_count = incorrect_lp["Serial Number"].nunique()
+
+    # ============================
+    # 2 LP WITHOUT ORDER
+    # ============================
+
+    if orders_df is not None:
+
+        lp_without_order = merged_df[
+            (merged_df["Longevity Pay"] > 0) &
+            (~merged_df["Serial Number"].isin(orders_df["Serial Number"]))
+        ]
+
+        lp_without_order_count = lp_without_order["Serial Number"].nunique()
+
+    else:
+        lp_without_order_count = 0
+
+    # ============================
+    # 3 ELIGIBLE BUT NO ORDER
+    # ============================
+
+    if orders_df is not None and soi_df is not None:
+
+        eligible_df = soi_df[soi_df["Eligible_LP_Level"] > 0]
+
+        missing_orders = eligible_df[
+            ~eligible_df["Serial Number"].isin(orders_df["Serial Number"])
+        ]
+
+        missing_orders_count = missing_orders["Serial Number"].nunique()
+
+    else:
+        missing_orders_count = 0
+
+    # ============================
+    # 4 ORDER NOT IN PAYROLL
+    # ============================
+
+    if orders_df is not None:
+
+        order_not_paid = orders_df[
+            ~orders_df["Serial Number"].isin(merged_df["Serial Number"])
+        ]
+
+        order_not_paid_count = order_not_paid["Serial Number"].nunique()
+
+    else:
+        order_not_paid_count = 0
+
+    # ============================
+    # DISPLAY METRICS
+    # ============================
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric(
+            "Incorrect Longevity Pay Computation",
+            incorrect_count
+        )
+
+    with col2:
+        st.metric(
+            "Longevity Pay Without Official Order",
+            lp_without_order_count
+        )
+
+    with col3:
+        st.metric(
+            "Eligible Personnel Without Longevity Order",
+            missing_orders_count
+        )
+
+    with col4:
+        st.metric(
+            "Order Issued but Payroll Not Updated",
+            order_not_paid_count
+        )
