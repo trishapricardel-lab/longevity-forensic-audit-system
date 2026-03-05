@@ -387,9 +387,7 @@ if soi_file is not None and payroll_files:
 
         st.markdown("---")
 
-        st.header("🔍 Individual Discrepancy Summary")
-
-        st.markdown("---")
+       
         st.header("🧑‍⚖️ Personnel Investigation Panel")
 
         selected_serial = st.selectbox(
@@ -422,7 +420,9 @@ if soi_file is not None and payroll_files:
                 ]
             ]
         )
+ st.header("🔍 Individual Discrepancy Summary")
 
+        st.markdown("---")
         st.dataframe(summary_df)
 
         st.markdown("---")
