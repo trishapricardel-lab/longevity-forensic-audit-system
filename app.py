@@ -5,6 +5,17 @@ import sqlite3
 from datetime import datetime
 import os
 
+st.set_page_config(page_title="Longevity Forensic Audit System", layout="wide")
+
+# ============================
+# CREATE STORAGE DIRECTORIES
+# ============================
+
+os.makedirs("data", exist_ok=True)
+os.makedirs("data/soi", exist_ok=True)
+os.makedirs("data/orders", exist_ok=True)
+os.makedirs("data/payroll", exist_ok=True)
+
 # ============================
 # DATABASE CONNECTION
 # ============================
@@ -52,6 +63,7 @@ conn.commit()
 # ============================
 
 users = {
+    "admin": {"password": "masterpass", "role": "Admin"},
     "adjutant": {"password": "admin123", "role": "Adjutant"},
     "s1": {"password": "s1pass", "role": "S1"},
     "finance": {"password": "finpass", "role": "Finance"},
@@ -89,33 +101,20 @@ if not st.session_state.logged_in:
 # SIDEBAR USER PANEL
 # ============================
 
-st.sidebar.title("User")
+st.sidebar.header("User Session")
 
-st.sidebar.write("Logged in as:")
-st.sidebar.write(st.session_state.username)
-
-st.sidebar.write("Role:")
-st.sidebar.write(st.session_state.role)
+st.sidebar.write("User:", st.session_state.username)
+st.sidebar.write("Role:", st.session_state.role)
 
 if st.sidebar.button("Logout"):
-
     st.session_state.logged_in = False
     st.rerun()
 
 # ============================
-# CREATE STORAGE DIRECTORIES
-# ============================
-
-os.makedirs("data", exist_ok=True)
-os.makedirs("data/soi", exist_ok=True)
-os.makedirs("data/orders", exist_ok=True)
-os.makedirs("data/payroll", exist_ok=True)
-st.set_page_config(page_title="Longevity Forensic Audit System", layout="wide")
-# ============================
 # SIDEBAR DATA REPOSITORY
 # ============================
 
-st.sidebar.title("Data Repository")
+st.sidebar.header("Data Repository")
 
 st.sidebar.subheader("SOI Files")
 
@@ -134,6 +133,11 @@ st.sidebar.subheader("Payroll Files")
 payroll_list = os.listdir("data/payroll")
 for file in payroll_list:
     st.sidebar.write(file)
+
+# ============================
+# MAIN PAGE
+# ============================
+
 st.title("Longevity Pay Forensic Audit System")
 st.markdown("### Multi-Month Personnel–Finance Validation Engine")
 
@@ -145,29 +149,52 @@ st.markdown("---")
 
 st.header("1. Upload Required Files")
 
-if st.session_state.role in ["S1","Adjutant"]:
+# SOI Upload
+
+if st.session_state.role in ["Admin", "S1", "Adjutant"]:
 
     soi_file = st.file_uploader(
         "Upload SOI File (S1) - CSV",
         type=["csv"]
     )
 
+    if soi_file is not None:
+
+        path = f"data/soi/{soi_file.name}"
+
+        with open(path, "wb") as f:
+            f.write(soi_file.getbuffer())
+
+        st.success("SOI saved to repository")
+
 else:
-
     st.info("Only S1 can upload SOI files.")
+    soi_file = None
 
-if st.session_state.role == "Adjutant":
+# Orders Upload
+
+if st.session_state.role in ["Admin","Adjutant"]:
 
     orders_file = st.file_uploader(
         "Upload Longevity Orders",
         type=["csv"]
     )
 
-else:
+    if orders_file is not None:
 
+        path = f"data/orders/{orders_file.name}"
+
+        with open(path, "wb") as f:
+            f.write(orders_file.getbuffer())
+
+        st.success("Orders saved")
+
+else:
     orders_file = None
 
-if st.session_state.role == "Finance":
+# Payroll Upload
+
+if st.session_state.role in ["Admin","Finance"]:
 
     payroll_files = st.file_uploader(
         "Upload Monthly Payroll Files",
@@ -175,8 +202,18 @@ if st.session_state.role == "Finance":
         accept_multiple_files=True
     )
 
-else:
+    if payroll_files:
 
+        for file in payroll_files:
+
+            path = f"data/payroll/{file.name}"
+
+            with open(path, "wb") as f:
+                f.write(file.getbuffer())
+
+        st.success("Payroll files saved")
+
+else:
     payroll_files = []
 
 # ============================
@@ -195,16 +232,14 @@ if orders_file is not None:
 
     orders_df["Upload_Time"] = datetime.now()
 
-# =====================================
+# ============================
 # LONGEVITY ORDER ARCHIVE
-# =====================================
+# ============================
 
 st.markdown("---")
 st.header("Longevity Order Archive")
 
 if orders_df is not None:
-
-    st.subheader("Uploaded Longevity Orders")
 
     st.dataframe(
         orders_df[
@@ -218,14 +253,6 @@ if orders_df is not None:
         ]
     )
 
-    st.subheader("Order Summary")
-
-    order_summary = orders_df.groupby(
-        "Order Number"
-    ).size().reset_index(name="Personnel_Count")
-
-    st.dataframe(order_summary)
-
 else:
 
     st.info("No longevity orders uploaded yet.")
@@ -238,26 +265,12 @@ if soi_file is not None and payroll_files:
 
     try:
 
-        # ------------------------
-        # LOAD SOI
-        # ------------------------
-
         soi_df = pd.read_csv(soi_file)
-
-        required_soi_cols = ["Serial Number", "Date of Entry"]
-
-        if not all(col in soi_df.columns for col in required_soi_cols):
-            st.error("SOI must contain: Serial Number, Date of Entry")
-            st.stop()
 
         soi_df["Date of Entry"] = pd.to_datetime(
             soi_df["Date of Entry"],
             format="%m/%d/%Y"
         )
-
-        # ------------------------
-        # YEARS OF SERVICE (SOI LEVEL)
-        # ------------------------
 
         today = datetime.today()
 
@@ -269,62 +282,11 @@ if soi_file is not None and payroll_files:
             lambda x: min(math.floor(x / 5), 5)
         )
 
-        # ------------------------
-        # ELIGIBLE BUT NO ORDER
-        # ------------------------
-
-        if orders_df is not None:
-
-            eligible_df = soi_df[soi_df["Eligible_LP_Level"] > 0]
-
-            missing_orders = eligible_df[
-                ~eligible_df["Serial Number"].isin(orders_df["Serial Number"])
-            ]
-
-            st.markdown("---")
-            st.header("⚠ Personnel Eligible for Longevity but No Order")
-
-            if len(missing_orders) > 0:
-
-                st.metric(
-                    "Personnel Eligible Without Order",
-                    len(missing_orders)
-                )
-
-                st.dataframe(
-                    missing_orders[
-                        [
-                            "Serial Number",
-                            "Years_of_Service",
-                            "Eligible_LP_Level"
-                        ]
-                    ]
-                )
-
-            else:
-
-                st.success("All eligible personnel have longevity orders.")
-
-        # ------------------------
-        # LOAD PAYROLL FILES
-        # ------------------------
-
         payroll_list = []
 
         for file in payroll_files:
 
             df = pd.read_csv(file)
-
-            required_payroll_cols = [
-                "Serial Number",
-                "Basic Salary",
-                "Longevity Pay",
-                "Payroll Month"
-            ]
-
-            if not all(col in df.columns for col in required_payroll_cols):
-                st.error(f"Payroll file {file.name} missing required columns.")
-                st.stop()
 
             payroll_list.append(df)
 
@@ -337,20 +299,12 @@ if soi_file is not None and payroll_files:
             payroll_df["Payroll Month"] + "-01"
         )
 
-        # ------------------------
-        # MERGE DATA
-        # ------------------------
-
         merged_df = pd.merge(
             payroll_df,
             soi_df,
             on="Serial Number",
             how="inner"
         )
-
-        # ------------------------
-        # YEARS OF SERVICE PER MONTH
-        # ------------------------
 
         merged_df["Years_of_Service"] = (
             (merged_df["Payroll_Date"] - merged_df["Date of Entry"]).dt.days / 365.25
@@ -359,10 +313,6 @@ if soi_file is not None and payroll_files:
         merged_df["LP_Count"] = merged_df["Years_of_Service"].apply(
             lambda x: min(math.floor(x / 5), 5)
         )
-
-        # ------------------------
-        # LONG PAY FORMULA
-        # ------------------------
 
         def compute_correct_lp(base_salary, lp_count):
 
@@ -383,60 +333,25 @@ if soi_file is not None and payroll_files:
             axis=1
         )
 
-        # ------------------------
-        # VARIANCE
-        # ------------------------
-
         merged_df["LP_Difference"] = (
             merged_df["Longevity Pay"] - merged_df["Correct_Long_Pay"]
         ).round(2)
 
         merged_df["Error_Flag"] = merged_df["LP_Difference"].abs() > 1
 
-        # ------------------------
-        # INDIVIDUAL SUMMARY
-        # ------------------------
-
         summary_df = merged_df.groupby("Serial Number").agg(
             Months_Incorrect=("Error_Flag", "sum"),
-            Months_Overpaid=("LP_Difference", lambda x: (x > 0).sum()),
-            Months_Underpaid=("LP_Difference", lambda x: (x < 0).sum()),
             Total_Variance=("LP_Difference", "sum"),
             Total_Overpaid=("LP_Difference", lambda x: x[x > 0].sum()),
             Total_Underpaid=("LP_Difference", lambda x: abs(x[x < 0].sum()))
         ).reset_index()
 
-        # ------------------------
-        # RISK LEVEL
-        # ------------------------
-
-        def risk_level(months):
-
-            if months == 0:
-                return "🟢 Compliant"
-
-            elif months <= 2:
-                return "🟡 Low Risk"
-
-            elif months <= 4:
-                return "🟠 Medium Risk"
-
-            else:
-                return "🔴 High Risk"
-
-        summary_df["Risk_Level"] = summary_df["Months_Incorrect"].apply(risk_level)
-
-        # ------------------------
-        # DASHBOARD
-        # ------------------------
-
         total_overpayment = summary_df["Total_Overpaid"].sum()
         total_underpayment = summary_df["Total_Underpaid"].sum()
-        net_exposure = total_underpayment - total_overpayment
 
         st.header("2. Organizational Financial Summary")
 
-        col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
 
         with col1:
             st.metric("Total Overpayment", f"₱{total_overpayment:,.2f}")
@@ -444,54 +359,22 @@ if soi_file is not None and payroll_files:
         with col2:
             st.metric("Total Underpayment", f"₱{total_underpayment:,.2f}")
 
-        with col3:
-            st.metric("Net Organizational Liability", f"₱{net_exposure:,.2f}")
-
         st.markdown("---")
-
-        # ------------------------
-        # PERSONNEL SUMMARY
-        # ------------------------
 
         st.header("3. Individual Discrepancy Summary")
 
-        st.dataframe(
-            summary_df[
-                [
-                    "Serial Number",
-                    "Months_Incorrect",
-                    "Months_Overpaid",
-                    "Months_Underpaid",
-                    "Total_Overpaid",
-                    "Total_Underpaid",
-                    "Total_Variance",
-                    "Risk_Level"
-                ]
-            ]
-        )
+        st.dataframe(summary_df)
 
         st.markdown("---")
-
-        # ------------------------
-        # FULL MONTHLY AUDIT
-        # ------------------------
 
         st.header("4. Detailed Monthly Audit")
 
         st.dataframe(merged_df)
 
-        # ------------------------
-        # DOWNLOAD REPORT
-        # ------------------------
-
-        st.markdown("### Export Full Audit Report")
-
-        csv_report = merged_df.to_csv(index=False).encode("utf-8")
-
         st.download_button(
-            label="Download Full Multi-Month Audit Report",
-            data=csv_report,
-            file_name="longevity_forensic_audit.csv",
+            label="Download Audit Report",
+            data=merged_df.to_csv(index=False).encode("utf-8"),
+            file_name="longevity_audit_report.csv",
             mime="text/csv",
         )
 
@@ -499,4 +382,4 @@ if soi_file is not None and payroll_files:
         st.error(f"Processing Error: {e}")
 
 else:
-    st.info("Upload SOI file and at least one monthly payroll file to begin.")
+    st.info("Upload SOI and Payroll files to start audit.")
