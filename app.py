@@ -806,8 +806,6 @@ if soi_file is not None and payroll_files:
         except Exception as e:
             st.error(f"Processing Error: {e}")
 
-        else:
-            st.info("Upload SOI and Payroll files to start audit.")
 
         # ============================
         # SYSTEM AUDIT LOG
