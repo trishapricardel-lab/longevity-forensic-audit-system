@@ -4,6 +4,14 @@ import math
 import os
 from datetime import datetime
 
+# ============================
+# CREATE STORAGE DIRECTORIES
+# ============================
+
+os.makedirs("data", exist_ok=True)
+os.makedirs("data/soi", exist_ok=True)
+os.makedirs("data/orders", exist_ok=True)
+os.makedirs("data/payroll", exist_ok=True)
 st.set_page_config(page_title="Longevity Forensic Audit System", layout="wide")
 # ============================
 # SIDEBAR DATA REPOSITORY
