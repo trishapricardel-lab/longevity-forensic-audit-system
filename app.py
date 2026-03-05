@@ -442,7 +442,6 @@ if orders_df is not None:
 else:
 
     st.info("No longevity orders uploaded yet.")
-
 # ============================
 # PROCESSING
 # ============================
@@ -471,9 +470,7 @@ if soi_file is not None and payroll_files:
         payroll_list = []
 
         for file in payroll_files:
-
             df = pd.read_csv(file)
-
             payroll_list.append(df)
 
         payroll_df = pd.concat(payroll_list, ignore_index=True)
@@ -491,6 +488,7 @@ if soi_file is not None and payroll_files:
             on="Serial Number",
             how="inner"
         )
+
         # ============================
         # IRREGULARITY DETECTION
         # ============================
@@ -500,35 +498,31 @@ if soi_file is not None and payroll_files:
 
         if orders_df is not None:
 
-    # Personnel with LP but NO order
-    lp_without_order = merged_df[
-        (merged_df["Longevity Pay"] > 0) &
-        (~merged_df["Serial Number"].isin(orders_df["Serial Number"]))
-    ]
-
-    if len(lp_without_order) > 0:
-
-        st.subheader("⚠ Personnel Receiving LP but NO Official Order")
-
-        st.metric(
-            "Cases Detected",
-            len(lp_without_order)
-        )
-
-        st.dataframe(
-            lp_without_order[
-                [
-                    "Serial Number",
-                    "Payroll Month",
-                    "Longevity Pay"
-                ]
+            # Personnel receiving LP but no order
+            lp_without_order = merged_df[
+                (merged_df["Longevity Pay"] > 0) &
+                (~merged_df["Serial Number"].isin(orders_df["Serial Number"]))
             ]
-        )
 
-    else:
+            if len(lp_without_order) > 0:
 
-        st.success("No unauthorized longevity payments detected.")
-        
+                st.subheader("⚠ Personnel Receiving LP but NO Official Order")
+
+                st.metric("Cases Detected", len(lp_without_order))
+
+                st.dataframe(
+                    lp_without_order[
+                        [
+                            "Serial Number",
+                            "Payroll Month",
+                            "Longevity Pay"
+                        ]
+                    ]
+                )
+
+            else:
+                st.success("No unauthorized longevity payments detected.")
+
         # ============================
         # ELIGIBLE BUT NO ORDER
         # ============================
@@ -548,7 +542,7 @@ if soi_file is not None and payroll_files:
                 st.metric(
                     "Personnel Eligible Without Order",
                     len(missing_orders)
-               )
+                )
 
                 st.dataframe(
                     missing_orders[
@@ -558,12 +552,11 @@ if soi_file is not None and payroll_files:
                             "Eligible_LP_Level"
                         ]
                     ]
-        )
+                )
 
-    else:
+            else:
+                st.success("All eligible personnel have orders issued.")
 
-        st.success("All eligible personnel have orders issued.")
-        
         # ============================
         # ORDER ISSUED BUT PAYROLL NOT UPDATED
         # ============================
@@ -586,12 +579,11 @@ if soi_file is not None and payroll_files:
                 st.dataframe(order_not_paid)
 
             else:
-
                 st.success("All issued orders reflected in payroll.")
-        
-        
-        
-        
+
+        # ============================
+        # CORRECT LP COMPUTATION
+        # ============================
 
         merged_df["Years_of_Service"] = (
             (merged_df["Payroll_Date"] - merged_df["Date of Entry"]).dt.days / 365.25
@@ -605,10 +597,8 @@ if soi_file is not None and payroll_files:
 
             if lp_count <= 0:
                 return 0
-
             elif lp_count == 5:
                 return base_salary * 0.50
-
             else:
                 return base_salary * (1.1 ** lp_count - 1)
 
@@ -633,6 +623,10 @@ if soi_file is not None and payroll_files:
             Total_Underpaid=("LP_Difference", lambda x: abs(x[x < 0].sum()))
         ).reset_index()
 
+        # ============================
+        # ORGANIZATIONAL SUMMARY
+        # ============================
+
         total_overpayment = summary_df["Total_Overpaid"].sum()
         total_underpayment = summary_df["Total_Underpaid"].sum()
 
@@ -646,9 +640,11 @@ if soi_file is not None and payroll_files:
         with col2:
             st.metric("Total Underpayment", f"₱{total_underpayment:,.2f}")
 
-        st.markdown("---")
+        # ============================
+        # PERSONNEL INVESTIGATION PANEL
+        # ============================
 
-       
+        st.markdown("---")
         st.header("🧑‍⚖️ Personnel Investigation Panel")
 
         selected_serial = st.selectbox(
@@ -665,7 +661,6 @@ if soi_file is not None and payroll_files:
         ]
 
         st.subheader("Personnel Financial Summary")
-
         st.dataframe(person_summary)
 
         st.subheader("Monthly Payroll History")
@@ -681,16 +676,21 @@ if soi_file is not None and payroll_files:
                 ]
             ]
         )
-        st.header("🔍 Individual Discrepancy Summary")
+
+        # ============================
+        # INDIVIDUAL DISCREPANCY SUMMARY
+        # ============================
 
         st.markdown("---")
+        st.header("🔍 Individual Discrepancy Summary")
         st.dataframe(summary_df)
 
+        # ============================
+        # DETAILED MONTHLY AUDIT
+        # ============================
+
         st.markdown("---")
-
-        
         st.header("4. Detailed Monthly Audit")
-
         st.dataframe(merged_df)
 
         st.download_button(
@@ -705,6 +705,7 @@ if soi_file is not None and payroll_files:
 
 else:
     st.info("Upload SOI and Payroll files to start audit.")
+
 st.markdown("---")
 st.header("System Audit Log")
 
