@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
+import os
 
 from modules.auth import login
 from modules.database import connect_db, create_tables
 from modules.file_manager import create_directories
 from modules.audit import log_action
 from modules.admin_panel import admin_controls
-
 
 from modules.uploads import (
     handle_soi_upload,
@@ -35,6 +35,7 @@ from modules.irregularity_engine import detect_mismatch
 from modules.case_tracker import generate_cases
 from modules.recommendation_engine import recommend_action
 from modules.timeline_analyzer import build_timeline
+
 
 # ============================
 # LOGIN
@@ -81,7 +82,7 @@ st.sidebar.write("Role:", st.session_state.role)
 if st.sidebar.button("Logout"):
     st.session_state.logged_in = False
     st.rerun()
-    
+
 # ============================
 # ADMIN PANEL
 # ============================
@@ -101,11 +102,39 @@ orders_file = handle_orders_upload(cursor, conn)
 payroll_files = handle_payroll_upload(cursor, conn)
 
 # ============================
-# PROCESSING
+# INITIALIZE VARIABLES
 # ============================
 
 summary_df = None
 merged_df = None
+soi_df = None
+orders_df = None
+cases_df = None
+
+# ============================
+# LOAD ORDERS FROM REPOSITORY
+# ============================
+
+orders_files = os.listdir("data/orders")
+
+orders_list = []
+
+for file in orders_files:
+
+    path = f"data/orders/{file}"
+
+    df = pd.read_csv(path)
+
+    df.columns = df.columns.str.strip()
+
+    orders_list.append(df)
+
+if len(orders_list) > 0:
+    orders_df = pd.concat(orders_list, ignore_index=True)
+
+# ============================
+# PROCESSING
+# ============================
 
 if soi_file is not None and payroll_files:
 
@@ -128,7 +157,11 @@ if soi_file is not None and payroll_files:
         merged_df = compute_longevity(merged_df)
 
         summary_df = create_summary(merged_df)
-        
+
+        # ============================
+        # IRREGULARITY ENGINE
+        # ============================
+
         mismatch_df = detect_mismatch(merged_df)
 
         cases_df = generate_cases(mismatch_df)
@@ -136,45 +169,52 @@ if soi_file is not None and payroll_files:
     except Exception as e:
 
         st.error(f"Processing Error: {e}")
-import os
-import pandas as pd
 
-orders_df = None
-
-orders_files = os.listdir("data/orders")
-
-orders_list = []
-
-for file in orders_files:
-
-    path = f"data/orders/{file}"
-
-    df = pd.read_csv(path)
-
-    df.columns = df.columns.str.strip()
-
-    orders_list.append(df)
-
-if len(orders_list) > 0:
-    orders_df = pd.concat(orders_list, ignore_index=True)
 # ============================
 # DASHBOARDS
 # ============================
 
-st.header("📁 Case Tracking")
+if cases_df is not None:
 
-st.dataframe(cases_df)
+    st.header("📁 Case Tracking")
+
+    st.dataframe(cases_df)
+
+# ----------------------------
 
 if merged_df is not None:
+
     irregularity_summary(merged_df, soi_df, orders_df)
-    
-command_dashboard(summary_df)
 
-rank_summary(merged_df)
+# ----------------------------
 
-organizational_summary(summary_df)
+if summary_df is not None:
 
-investigation_panel(summary_df, merged_df)
+    financial_impact_panel(summary_df)
+
+# ----------------------------
+
+if summary_df is not None:
+
+    command_dashboard(summary_df)
+
+# ----------------------------
+
+if merged_df is not None:
+
+    rank_summary(merged_df)
+
+# ----------------------------
+
+if summary_df is not None:
+
+    organizational_summary(summary_df)
+
+# ----------------------------
+
+if summary_df is not None and merged_df is not None:
+
+    investigation_panel(summary_df, merged_df)
 
 # ============================
 # INDIVIDUAL SUMMARY
