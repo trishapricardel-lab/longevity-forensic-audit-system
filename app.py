@@ -603,6 +603,23 @@ if len(soi_files) > 0:
     soi_archive_df["Source_File"] = selected_soi
     soi_archive_df["Upload_Date"] = datetime.fromtimestamp(os.path.getmtime(path))
 
+    # Rank filter
+    if "Rank" in soi_archive_df.columns:
+
+        rank_options = ["All"] + sorted(
+            soi_archive_df["Rank"].dropna().unique().tolist()
+        )
+
+        selected_rank = st.selectbox(
+            "Filter by Rank",
+            rank_options
+        )
+
+        if selected_rank != "All":
+            soi_archive_df = soi_archive_df[
+                soi_archive_df["Rank"] == selected_rank
+            ]
+
     display_columns = [
         "Rank",
         "Name",
