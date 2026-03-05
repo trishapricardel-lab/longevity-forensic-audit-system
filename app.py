@@ -350,8 +350,6 @@ payroll_list = os.listdir("data/payroll")
 for file in payroll_list:
     st.sidebar.write(file)
 
-
-
 # ============================
 # MAIN PAGE HEADER
 # ============================
@@ -387,7 +385,11 @@ st.markdown("---")
 
 st.header("📤 Upload Required Files")
 
+# ============================
 # SOI Upload
+# ============================
+
+soi_file = None
 
 if st.session_state.role in ["Admin", "S1", "Adjutant"]:
 
@@ -407,12 +409,16 @@ if st.session_state.role in ["Admin", "S1", "Adjutant"]:
         log_action(st.session_state.username, "Upload SOI", soi_file.name)
 
 else:
-    st.info("Only S1 can upload SOI files.")
-    soi_file = None
+    st.info("Only S1, Adjutant, or Admin can upload SOI files.")
 
+
+# ============================
 # Orders Upload
+# ============================
 
-if st.session_state.role in ["Admin","Adjutant"]:
+orders_file = None
+
+if st.session_state.role in ["Admin", "Adjutant"]:
 
     orders_file = st.file_uploader(
         "Upload Longevity Orders",
@@ -429,12 +435,14 @@ if st.session_state.role in ["Admin","Adjutant"]:
         st.success("Orders saved")
         log_action(st.session_state.username, "Upload Longevity Order", orders_file.name)
 
-else:
-    orders_file = None
 
+# ============================
 # Payroll Upload
+# ============================
 
-if st.session_state.role in ["Admin","Finance"]:
+payroll_files = []
+
+if st.session_state.role in ["Admin", "Finance"]:
 
     payroll_files = st.file_uploader(
         "Upload Monthly Payroll Files",
@@ -442,21 +450,18 @@ if st.session_state.role in ["Admin","Finance"]:
         accept_multiple_files=True
     )
 
-if payroll_files:
+    if payroll_files:
 
-    for file in payroll_files:
+        for file in payroll_files:
 
-        path = f"data/payroll/{file.name}"
+            path = f"data/payroll/{file.name}"
 
-        with open(path, "wb") as f:
-            f.write(file.getbuffer())
+            with open(path, "wb") as f:
+                f.write(file.getbuffer())
 
-        log_action(st.session_state.username, "Upload Payroll", file.name)
+            log_action(st.session_state.username, "Upload Payroll", file.name)
 
-    st.success("Payroll files saved")
-
-else:
-    payroll_files = []
+        st.success("Payroll files saved")
 
 # ============================
 # LOAD ORDERS
