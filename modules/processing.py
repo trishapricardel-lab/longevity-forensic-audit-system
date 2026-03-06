@@ -104,38 +104,94 @@ def merge_datasets(soi_df, payroll_df):
 
 def compute_longevity(merged_df):
 
+    # ----------------------------
+    # Ensure date format is correct
+    # ----------------------------
+
+    merged_df["Payroll_Date"] = pd.to_datetime(merged_df["Payroll_Date"])
+    merged_df["Date of Entry"] = pd.to_datetime(merged_df["Date of Entry"])
+
+    # ----------------------------
+    # Compute Years of Service
+    # ----------------------------
+
     merged_df["Years_of_Service"] = (
         (merged_df["Payroll_Date"] - merged_df["Date of Entry"]).dt.days / 365.25
     )
 
-    merged_df["LP_Count"] = merged_df["Years_of_Service"].apply(
-        lambda x: min(math.floor(x / 5), 5)
-    )
+    # ----------------------------
+    # Compute LP Level (every 5 yrs)
+    # Max level = 5
+    # ----------------------------
 
-    def compute_correct_lp(base_salary, lp_count):
+    merged_df["LP_Level"] = (
+        merged_df["Years_of_Service"] // 5
+    ).astype(int)
 
-        if lp_count <= 0:
+    merged_df["LP_Level"] = merged_df["LP_Level"].clip(upper=5)
+
+    # ----------------------------
+    # Compute Correct Longevity Pay
+    # ----------------------------
+
+    def compute_correct_lp(base_salary, lp_level):
+
+        if lp_level <= 0:
             return 0
 
-        elif lp_count == 5:
-            return base_salary * 0.50
+        # Level 1 = 10%
+        # Level 2 = 21%
+        # Level 3 = 33.1%
+        # Level 4 = 46.41%
+        # Level 5 = capped at 50%
 
+        if lp_level == 5:
+            percentage = 0.50
         else:
-            return base_salary * (1.1 ** lp_count - 1)
+            percentage = (1.1 ** lp_level) - 1
+
+        return base_salary * percentage
 
     merged_df["Correct_Long_Pay"] = merged_df.apply(
         lambda row: compute_correct_lp(
             row["Basic Salary"],
-            row["LP_Count"]
+            row["LP_Level"]
         ),
         axis=1
     )
+
+    merged_df["Correct_Long_Pay"] = merged_df["Correct_Long_Pay"].round(2)
+
+    # ----------------------------
+    # Compute Difference
+    # ----------------------------
 
     merged_df["LP_Difference"] = (
         merged_df["Longevity Pay"] - merged_df["Correct_Long_Pay"]
     ).round(2)
 
-    merged_df["Error_Flag"] = merged_df["LP_Difference"].abs() > 1
+    # ----------------------------
+    # Classify Payment Status
+    # ----------------------------
+
+    def classify_payment(diff):
+
+        if diff > 1:
+            return "Overpaid"
+
+        elif diff < -1:
+            return "Underpaid"
+
+        else:
+            return "Correct"
+
+    merged_df["Payment_Status"] = merged_df["LP_Difference"].apply(classify_payment)
+
+    # ----------------------------
+    # Error flag
+    # ----------------------------
+
+    merged_df["Error_Flag"] = merged_df["Payment_Status"] != "Correct"
 
     return merged_df
 
