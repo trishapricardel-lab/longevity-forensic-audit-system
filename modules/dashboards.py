@@ -152,7 +152,7 @@ def executive_dashboard(summary_df, merged_df, cases_df):
             st.session_state.view = "underpayment"
 
     with col6:
-        st.metric("Audit Coverage (Months)", audit_coverage)
+        st.button("Audit Coverage (Months)", audit_coverage)
 
     # ============================
     # ROW 3
@@ -161,10 +161,10 @@ def executive_dashboard(summary_df, merged_df, cases_df):
     col7, col8, col9 = st.columns(3)
 
     with col7:
-        st.metric("Total Overpayment", f"₱{total_overpayment:,.2f}")
+        st.button("Total Overpayment", f"₱{total_overpayment:,.2f}")
 
     with col8:
-        st.metric("Total Underpayment", f"₱{total_underpayment:,.2f}")
+        st.button("Total Underpayment", f"₱{total_underpayment:,.2f}")
 
     with col9:
         if st.button(f"Investigation Cases\n\n{investigation_cases}", use_container_width=True):
