@@ -106,8 +106,8 @@ def executive_dashboard(summary_df, merged_df, cases_df):
 
     personnel_errors = (summary_df["Months_Incorrect"] > 0).sum()
 
-    overpaid_df = summary_df[summary_df["Total_Overpaid"] > 0]
-    underpaid_df = summary_df[summary_df["Total_Underpaid"] > 0]
+    personnel_overpaid = overpaid_df["Serial Number"].nunique()
+    personnel_underpaid = underpaid_df["Serial Number"].nunique()
 
     personnel_overpaid = overpaid_df.shape[0]
     personnel_underpaid = underpaid_df.shape[0]
