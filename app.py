@@ -8,19 +8,15 @@ from modules.file_manager import create_directories
 from modules.audit import log_action
 from modules.admin_panel import admin_controls
 
-from modules.uploads import (
-    handle_soi_upload,
-    handle_orders_upload,
-    handle_payroll_upload
-)
+from modules.uploads import handle_soi_upload
+from modules.uploads import handle_orders_upload
+from modules.uploads import handle_payroll_upload
 
-from modules.processing import (
-    load_soi,
-    load_payroll,
-    merge_datasets,
-    compute_longevity,
-    create_summary
-)
+from modules.processing import load_soi
+from modules.processing import load_payroll
+from modules.processing import merge_datasets
+from modules.processing import compute_longevity
+from modules.processing import create_summary
 
 from modules.dashboards import executive_dashboard
 from modules.dashboards import rank_summary
@@ -32,7 +28,6 @@ from modules.irregularity_engine import detect_mismatch
 from modules.case_tracker import generate_cases
 from modules.recommendation_engine import recommend_action
 from modules.timeline_analyzer import build_timeline
-
 
 # ============================
 # LOGIN
