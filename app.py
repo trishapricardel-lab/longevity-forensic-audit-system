@@ -22,11 +22,11 @@ from modules.processing import (
     create_summary
 )
 
-from modules.dashboards import (
-    irregularity_summary,
-    executive_dashboard,
-    rank_summary,
-    investigation_panel
+from modules.dashboards import executive_dashboard
+from modules.dashboards import rank_summary
+from modules.dashboards import organizational_summary
+from modules.dashboards import investigation_panel
+from modules.dashboards import irregularity_summary
 )
 
 from modules.irregularity_engine import detect_mismatch
