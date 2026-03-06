@@ -96,9 +96,9 @@ def executive_dashboard(summary_df, merged_df):
         st.info("Upload files to generate dashboard.")
         return
 
-    # -----------------------------
-    # Compute Metrics
-    # -----------------------------
+    # ============================
+    # COMPUTE METRICS
+    # ============================
 
     personnel_audited = summary_df["Serial Number"].nunique()
 
@@ -115,53 +115,95 @@ def executive_dashboard(summary_df, merged_df):
     total_overpayment = summary_df["Total_Overpaid"].sum()
     total_underpayment = summary_df["Total_Underpaid"].sum()
 
-    # -----------------------------
-    # Row 1 (3 columns)
-    # -----------------------------
+    # ============================
+    # ROW 1
+    # ============================
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        if st.button(f"Personnel Audited\n\n{personnel_audited}"):
+        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+        if st.button(
+            f"Personnel Audited\n\n{personnel_audited}",
+            key="personnel_audited",
+            use_container_width=True
+        ):
             st.session_state.view = "personnel"
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
-        if st.button(f"Payroll Records\n\n{payroll_records}"):
+        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+        if st.button(
+            f"Payroll Records\n\n{payroll_records}",
+            key="payroll_records",
+            use_container_width=True
+        ):
             st.session_state.view = "payroll"
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col3:
-        if st.button(f"Personnel with Errors\n\n{personnel_errors}"):
+        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+        if st.button(
+            f"Personnel with Errors\n\n{personnel_errors}",
+            key="personnel_errors",
+            use_container_width=True
+        ):
             st.session_state.view = "errors"
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # -----------------------------
-    # Row 2
-    # -----------------------------
+    # ============================
+    # ROW 2
+    # ============================
 
-    col4, col5 = st.columns(2)
+    col4, col5, col6 = st.columns(3)
 
     with col4:
-        if st.button(f"Personnel with Overpayment\n\n{personnel_overpaid}"):
+        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+        if st.button(
+            f"Personnel with Overpayment\n\n{personnel_overpaid}",
+            key="personnel_overpayment",
+            use_container_width=True
+        ):
             st.session_state.view = "overpayment"
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col5:
-        st.metric("Total Overpayment", f"₱{total_overpayment:,.2f}")
+        st.metric(
+            "Total Overpayment",
+            f"₱{total_overpayment:,.2f}"
+        )
+
+    with col6:
+        st.empty()
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # -----------------------------
-    # Row 3
-    # -----------------------------
+    # ============================
+    # ROW 3
+    # ============================
 
-    col6, col7 = st.columns(2)
-
-    with col6:
-        if st.button(f"Personnel with Underpayment\n\n{personnel_underpaid}"):
-            st.session_state.view = "underpayment"
+    col7, col8, col9 = st.columns(3)
 
     with col7:
-        st.metric("Total Underpayment", f"₱{total_underpayment:,.2f}")
+        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+        if st.button(
+            f"Personnel with Underpayment\n\n{personnel_underpaid}",
+            key="personnel_underpayment",
+            use_container_width=True
+        ):
+            st.session_state.view = "underpayment"
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with col8:
+        st.metric(
+            "Total Underpayment",
+            f"₱{total_underpayment:,.2f}"
+        )
+
+    with col9:
+        st.empty()
 
 
 # ============================
