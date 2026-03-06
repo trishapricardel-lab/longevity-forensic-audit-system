@@ -86,7 +86,6 @@ def irregularity_summary(merged_df, soi_df, orders_df):
         )
 
 def executive_dashboard(summary_df, merged_df, cases_df):
-
     import streamlit as st
 
     st.markdown("---")
